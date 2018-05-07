@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strings"
 
+	k8sresource "github.com/weaveworks/flux/cluster/kubernetes/resource"
+
 	"github.com/weaveworks/flux/image"
 )
 
@@ -30,7 +32,12 @@ func updatePodController(def []byte, container string, newImageID image.Ref) ([]
 	}
 
 	var buf bytes.Buffer
-	err = tryUpdate(def, container, newImageID, &buf)
+
+	if obj.Kind == "FluxHelmRelease" {
+		err = k8sresource.TryFHRUpdate(def, container, newImageID, &buf)
+	} else {
+		err = tryUpdate(def, container, newImageID, &buf)
+	}
 	return buf.Bytes(), err
 }
 
