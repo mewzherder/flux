@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"fmt"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -122,7 +123,13 @@ type Manifest struct {
 				} `yaml:"template"`
 			} `yaml:"spec"`
 		} `yaml:"jobTemplate"`
+		ChartGitPath   string `yaml:"chartGitPath"`
+		ReleaseName    string `yaml:"releaseName,omitempty"`
+		FluxHelmValues struct {
+			Image interface{} `yaml:"image,omitempty"`
+		} `yaml:"values,omitempty"`
 	} `yaml:"spec"`
+	//ifv1.FluxHelmReleaseSpec `json:"spec"`
 }
 
 func (m Metadata) AnnotationsOrNil() map[string]string {
@@ -143,15 +150,36 @@ type Container struct {
 }
 
 func parseManifest(def []byte) (Manifest, error) {
+	fmt.Println("\t\t*** in parseManifest")
 	var m Manifest
 	if err := yaml.Unmarshal(def, &m); err != nil {
 		return m, errors.Wrap(err, "decoding annotations")
 	}
+
+	if m.Spec.ChartGitPath != "" {
+		fmt.Printf("\t\t*** %+v\n", m)
+		values := m.Spec.FluxHelmValues
+
+		switch values.Image.(type) {
+		case string:
+
+		default:
+			m.Spec.FluxHelmValues.Image = ""
+		}
+	}
+
+	fmt.Printf("\t\t*** : %s: \n[[  %+v  ]]\n\n", m.Metadata.Name, m.Spec)
+
 	return m, nil
 }
 
 func (m *Manifests) ServicesWithPolicies(root string) (policy.ResourceMap, error) {
+	fmt.Printf("\t\tServicesWithPolicies: root = %s\n", root)
+
 	all, err := m.FindDefinedServices(root)
+	fmt.Printf("\t\t\t: all = %+v\n", all)
+	fmt.Printf("\t\t\t: err = %+v\n", err)
+
 	if err != nil {
 		return nil, err
 	}
@@ -172,6 +200,8 @@ func (m *Manifests) ServicesWithPolicies(root string) (policy.ResourceMap, error
 }
 
 func iterateManifests(services map[flux.ResourceID][]string, f func(flux.ResourceID, Manifest) error) error {
+	fmt.Printf("\t\titerateManifests: services ... %v\n", services)
+
 	for serviceID, paths := range services {
 		if len(paths) != 1 {
 			continue
@@ -194,6 +224,9 @@ func iterateManifests(services map[flux.ResourceID][]string, f func(flux.Resourc
 }
 
 func policiesFrom(m Manifest) (policy.Set, error) {
+	fmt.Println("-------------------------------")
+	fmt.Printf("\t\t\tpoliciesFrom: nanifest = %+v\n", m)
+
 	var policies policy.Set
 	for k, v := range m.Metadata.AnnotationsOrNil() {
 		if !strings.HasPrefix(k, resource.PolicyPrefix) {
@@ -209,5 +242,8 @@ func policiesFrom(m Manifest) (policy.Set, error) {
 			policies = policies.Set(p, v)
 		}
 	}
+	fmt.Printf("\t\tpoliciesFrom: policies ... %v\n", policies)
+	fmt.Println("-------------------------------")
+
 	return policies, nil
 }

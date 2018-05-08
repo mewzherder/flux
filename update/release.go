@@ -251,6 +251,8 @@ func (s ReleaseSpec) calculateImageUpdates(rc ReleaseContext, candidates []*Cont
 			// canonical form.
 			newImageID := currentImageID.WithNewTag(latestImage.ID.Tag)
 
+			fmt.Printf("\t\t>>> release.calculateImageUpdates: %+v\n\n", newImageID)
+
 			u.ManifestBytes, err = rc.Manifests().UpdateDefinition(u.ManifestBytes, container.Name, newImageID)
 			if err != nil {
 				return nil, err

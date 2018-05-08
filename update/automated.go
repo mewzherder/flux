@@ -108,6 +108,9 @@ func (a *Automated) calculateImageUpdates(rc ReleaseContext, candidates []*Contr
 				// resource (e.g., to avoid canonicalising it)
 				newImageID := currentImageID.WithNewTag(change.ImageID.Tag)
 				var err error
+
+				fmt.Printf("\t\t>>> release.calculateImageUpdates: %+v\n\n", newImageID)
+
 				u.ManifestBytes, err = rc.Manifests().UpdateDefinition(u.ManifestBytes, container.Name, newImageID)
 				if err != nil {
 					return nil, err
