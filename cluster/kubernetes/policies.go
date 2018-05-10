@@ -107,6 +107,7 @@ func updateAnnotations(def []byte, tagAll string, f func(map[string]string) map[
 }
 
 type Manifest struct {
+	Typemeta Typemeta `yaml:",inline"`
 	Metadata Metadata `yaml:"metadata"`
 	Spec     struct {
 		Template struct {
@@ -129,7 +130,6 @@ type Manifest struct {
 			Image interface{} `yaml:"image,omitempty"`
 		} `yaml:"values,omitempty"`
 	} `yaml:"spec"`
-	//ifv1.FluxHelmReleaseSpec `json:"spec"`
 }
 
 func (m Metadata) AnnotationsOrNil() map[string]string {
@@ -139,6 +139,9 @@ func (m Metadata) AnnotationsOrNil() map[string]string {
 	return m.Annotations
 }
 
+type Typemeta struct {
+	Kind string `yaml:"kind,omitempty"`
+}
 type Metadata struct {
 	Name        string            `yaml:"name"`
 	Annotations map[string]string `yaml:"annotations"`
@@ -150,14 +153,14 @@ type Container struct {
 }
 
 func parseManifest(def []byte) (Manifest, error) {
-	fmt.Println("\t\t*** in parseManifest")
+	fmt.Println("\t\t*** in parseManifest --------------------------------")
 	var m Manifest
 	if err := yaml.Unmarshal(def, &m); err != nil {
 		return m, errors.Wrap(err, "decoding annotations")
 	}
 
 	if m.Spec.ChartGitPath != "" {
-		fmt.Printf("\t\t*** %+v\n", m)
+		fmt.Printf("\t\t\t---> %+v\n", m)
 		values := m.Spec.FluxHelmValues
 
 		switch values.Image.(type) {
@@ -168,17 +171,33 @@ func parseManifest(def []byte) (Manifest, error) {
 		}
 	}
 
-	fmt.Printf("\t\t*** : %s: \n[[  %+v  ]]\n\n", m.Metadata.Name, m.Spec)
+	if m.Typemeta.Kind != "" && m.Typemeta.Kind == "FluxHelmRelease" {
+		m.Spec.Template.Spec.Containers = createFluxK8sContainers(m.Spec.ChartGitPath, m.Spec.FluxHelmValues.Image)
+	}
+	fmt.Printf("\t\t\t\t===> : %s: \n[[  %+v  ]]\n\n", m.Metadata.Name, m.Spec)
+	fmt.Println("\t\t*** in parseManifest --------------------------------")
 
 	return m, nil
 }
 
+// assumes only one image in the Spec.Values
+func createFluxK8sContainers(containerName string, image interface{}) []Container {
+	imageStr, ok := image.(string)
+
+	containers := []Container{}
+	if !ok || containerName == "" || image == "" {
+		return containers
+	}
+	containers = append(containers, Container{Name: containerName, Image: imageStr})
+	return containers
+}
+
 func (m *Manifests) ServicesWithPolicies(root string) (policy.ResourceMap, error) {
-	fmt.Printf("\t\tServicesWithPolicies: root = %s\n", root)
+	fmt.Printf("\t\t\t\t\tServicesWithPolicies: root = %s\n", root)
 
 	all, err := m.FindDefinedServices(root)
-	fmt.Printf("\t\t\t: all = %+v\n", all)
-	fmt.Printf("\t\t\t: err = %+v\n", err)
+	fmt.Printf("\t\t\t\t\t\tresult of FindDefinedServices: all = %+v\n", all)
+	fmt.Printf("\t\t\t\t\t\tresult of FindDefinedServices: err = %+v\n", err)
 
 	if err != nil {
 		return nil, err
@@ -196,6 +215,8 @@ func (m *Manifests) ServicesWithPolicies(root string) (policy.ResourceMap, error
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("\t\t\tresult in iterateManifests: %+v\n", result)
+
 	return result, nil
 }
 
@@ -224,8 +245,7 @@ func iterateManifests(services map[flux.ResourceID][]string, f func(flux.Resourc
 }
 
 func policiesFrom(m Manifest) (policy.Set, error) {
-	fmt.Println("-------------------------------")
-	fmt.Printf("\t\t\tpoliciesFrom: nanifest = %+v\n", m)
+	fmt.Printf("\t\t\tpoliciesFrom: manifest = %+v\n", m)
 
 	var policies policy.Set
 	for k, v := range m.Metadata.AnnotationsOrNil() {
@@ -243,7 +263,6 @@ func policiesFrom(m Manifest) (policy.Set, error) {
 		}
 	}
 	fmt.Printf("\t\tpoliciesFrom: policies ... %v\n", policies)
-	fmt.Println("-------------------------------")
 
 	return policies, nil
 }
