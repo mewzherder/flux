@@ -32,16 +32,26 @@ func (a *Automated) CalculateRelease(rc ReleaseContext, logger log.Logger) ([]*C
 
 	result := Result{}
 	updates, err := rc.SelectServices(result, prefilters, nil)
-	fmt.Printf("\t\t\t1 updates(after SelectServices): %#v\n", updates)
+	fmt.Printf("\t\t\t\t+++ after SelectServices: +++ error:%v \n", err)
+	for _, u := range updates {
+		fmt.Printf("\t\t\t1 ControllerUpdate(after SelectServices): %#v\n", *u)
+		fmt.Printf("\t\t\t2 ControllerUpdate.Update(after SelectServices): %#v\n", u.Updates)
+	}
 	if err != nil {
 		return nil, nil, err
 	}
 
 	a.markSkipped(result)
 	updates, err = a.calculateImageUpdates(rc, updates, result, logger)
-	fmt.Printf("\t\t\t2 updates(after calculateImageUpdates): %#v\n", updates)
+	fmt.Printf("\t\t\t\t+++ after calculateImageUpdates: +++ error:%v \n", err)
+
 	if err != nil {
 		return nil, nil, err
+	}
+
+	for _, u := range updates {
+		fmt.Printf("\t\t\t1 ControllerUpdate(after calculateImageUpdates): %#v\n", *u)
+		fmt.Printf("\t\t\t2 ControllerUpdate.Update(after calculateImageUpdates): %#v\n", u.Updates)
 	}
 
 	fmt.Println("\n\t\t++++++++++++++++ END automated.CalculateRelease\n")
@@ -96,6 +106,8 @@ func (a *Automated) calculateImageUpdates(rc ReleaseContext, candidates []*Contr
 	serviceMap := a.serviceMap()
 	for _, u := range candidates {
 		containers := u.Resource.Containers()
+		fmt.Printf("\t\t\t how many containers ... %+v\n", len(containers))
+
 		changes := serviceMap[u.ResourceID]
 		containerUpdates := []ContainerUpdate{}
 		for _, container := range containers {
@@ -150,6 +162,7 @@ func (a *Automated) calculateImageUpdates(rc ReleaseContext, candidates []*Contr
 			}
 		}
 	}
+	fmt.Println("\t\t============ END of calculateImageUpdates\n")
 
 	return updates, nil
 }

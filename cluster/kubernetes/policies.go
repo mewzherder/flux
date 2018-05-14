@@ -160,7 +160,6 @@ func parseManifest(def []byte) (Manifest, error) {
 	}
 
 	if m.Spec.ChartGitPath != "" {
-		fmt.Printf("\t\t\t---> %+v\n", m)
 		values := m.Spec.FluxHelmValues
 
 		switch values.Image.(type) {
@@ -173,8 +172,8 @@ func parseManifest(def []byte) (Manifest, error) {
 
 	if m.Typemeta.Kind != "" && m.Typemeta.Kind == "FluxHelmRelease" {
 		m.Spec.Template.Spec.Containers = createFluxK8sContainers(m.Spec.ChartGitPath, m.Spec.FluxHelmValues.Image)
+		fmt.Printf("\t\t\t\tcontainers for %s: [[  %+v  ]]\n\n", m.Metadata.Name, m.Spec.Template.Spec.Containers)
 	}
-	fmt.Printf("\t\t\t\t===> : %s: \n[[  %+v  ]]\n\n", m.Metadata.Name, m.Spec)
 	fmt.Println("\t\t*** in parseManifest --------------------------------")
 
 	return m, nil
@@ -196,8 +195,7 @@ func (m *Manifests) ServicesWithPolicies(root string) (policy.ResourceMap, error
 	fmt.Printf("\t\t\t\t\tServicesWithPolicies: root = %s\n", root)
 
 	all, err := m.FindDefinedServices(root)
-	fmt.Printf("\t\t\t\t\t\tresult of FindDefinedServices: all = %+v\n", all)
-	fmt.Printf("\t\t\t\t\t\tresult of FindDefinedServices: err = %+v\n", err)
+	//fmt.Printf("\t\t\t\t\t\tresult of FindDefinedServices: all = %+v\n", all)
 
 	if err != nil {
 		return nil, err
@@ -221,7 +219,7 @@ func (m *Manifests) ServicesWithPolicies(root string) (policy.ResourceMap, error
 }
 
 func iterateManifests(services map[flux.ResourceID][]string, f func(flux.ResourceID, Manifest) error) error {
-	fmt.Printf("\t\titerateManifests: services ... %v\n", services)
+	//fmt.Printf("\t\titerateManifests: services ... %v\n", services)
 
 	for serviceID, paths := range services {
 		if len(paths) != 1 {
@@ -245,7 +243,7 @@ func iterateManifests(services map[flux.ResourceID][]string, f func(flux.Resourc
 }
 
 func policiesFrom(m Manifest) (policy.Set, error) {
-	fmt.Printf("\t\t\tpoliciesFrom: manifest = %+v\n", m)
+	//fmt.Printf("\t\t\tpoliciesFrom: manifest = %+v\n", m)
 
 	var policies policy.Set
 	for k, v := range m.Metadata.AnnotationsOrNil() {
@@ -262,7 +260,7 @@ func policiesFrom(m Manifest) (policy.Set, error) {
 			policies = policies.Set(p, v)
 		}
 	}
-	fmt.Printf("\t\tpoliciesFrom: policies ... %v\n", policies)
+	//fmt.Printf("\t\tpoliciesFrom: policies ... %v\n", policies)
 
 	return policies, nil
 }
