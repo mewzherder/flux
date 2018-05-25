@@ -60,6 +60,54 @@ Get started by browsing through the documentation below:
 - [Upgrading to Flux v1](/site/upgrading-to-1.0.md)
 - [Troubleshooting](/site/troubleshooting.md)
 
+## Features
+
+Flux is open-source and makes GitOps happen in your cluster in a secure and
+obvious way: you don't need a separate CD tool, instead you make CD part of
+the orchestration system in the cluster. Flux will ensure that the cluster
+state always matches the config in git.
+
+Weave Cloud builds on top of the great work in Flux and is our SaaS product
+that along with a UI and alerts for deployments, gives you full
+observability and insights into your cluster as well. It simplifies
+deployment, monitoring and management for containers and microservices.
+Read our full feature comparison to find out what's for you.
+
+|                                                                                                | OSS Flux | Weave Cloud |
+| ---------------------------------------------------------------------------------------------- |:--------:|:-----------:|
+| &#x026AA; Speed up deployments of any workload into Kubernetes                                 | x        | x           |
+| &#x026AA; Automated or manual deployments if you need more control                             | x        | x           |
+| &#x026AA; Automatic or one-click manual rollbacks                                              | x        | x           |
+| &#x026AA; Audit trail (who did what when) of deployments/commits/alerts/notifications          | x        | x           |
+| &#x026AA; Batch operations - control workloads and their deployment strategies easily          | x        | x           |
+| &#x026AA; Flux ensures that the cluster state matches the config in git                        | x        | x           |
+| &#x026AA; Operators can lock a deployment and state why                                        | x        | x           |
+| &#x026AA; Helm support for deployments (alpha)                                                 | x        | x           |
+| &#x026AA; Overview of the system deployment state (version, automation status, locks, etc).    |          | x           |
+| &#x026AA; All flux operations accessible at the click of a button                              |          | x           |
+| &#x026AA; Straight-forward setup of your configuration                                         |          | x           |
+| &#x026AA; Route deployment notifications to where your team reads them (slack, email, browser) |          | x           |
+| &#x026AB; Start using monitoring and dashboards for workloads and nodes right after install    |          | x           |
+| &#x026AB; Track latency and request duration of your workloads if instrumented for prometheus  |          | x           |
+| &#x026AB; Use monitoring notebooks for groups of metrics you are interested in                 |          | x           |
+| &#x026AB; Inspect and learn from 13 months of history of metrics and cluster state             |          | x           |
+| &#x026AB; Use GCP Stackdriver and get logs and events easily aggregated                        |          | x           |
+| &#x026AB; Debug and explore the state of your cluster in real-time                             |          | x           |
+| &#x026AB; Use Time Travel to inspect and analyse the cluster and workloads history stats       |          | x           |
+| &#x026AB; Invite team members to your cluster                                                  |          | x           |
+| &#x026AB; Metrics of workloads are automatically* discovered and instantly available           |          | x           |
+
+| Legend                                                                                             |
+| -------------------------------------------------------------------------------------------------- |
+| &#x026AA; GitOps feature                                                                           |
+| &#x026AB; Observability feature                                                                    |
+| <sup>* this includes many language- and framework-specific metrics, e.g. go, jvm, http, etc.</sup> |
+
+Learn more about Weave Cloud, its features and see it in action on
+[its homepage](https://www.weave.works/product/cloud/).
+
+
+
 ## Developer information
 
 [Build documentation](/site/building.md)
