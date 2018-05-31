@@ -40,13 +40,33 @@ Flux is most useful when used as a deployment tool at the end of a
 Continuous Delivery pipeline. Flux will make sure that your new
 container images and config changes are propagated to the cluster.
 
-Among its features are:
+### Features
+
+Its major features are:
 
 - [Automated git → cluster synchronisation](/site/introduction.md#automated-git-cluster-synchronisation)
 - [Automated deployment of new container images](/site/introduction.md#automated-deployment-of-new-container-images)
-- [Integrations with other devops tools](/site/introduction.md#integrations-with-other-devops-tools) ([Helm](site/helm/helm-integration.md) and more)
+- [Integrations with other devops tools](/site/introduction.md#integrations-with-other-devops-tools) ([Helm](/site/helm/helm-integration.md) and more)
 - No additional service or infrastructure needed - Flux lives inside your
   cluster
+- Straight-forward control over the state of deployments in the
+  cluster (rollbacks, lock a specific version of a workload, manual
+  deplomyents, )
+- Observability: Audit trail (who did what when) and leave messages as
+  to why a given deployment was locked
+
+Weave Cloud builds on top of the great work in Flux and is a SaaS
+product by Weaveworks that gives you
+
+ - a UI and alerts for deployments: nicely integrated overview, all flux
+   operations just a click away.
+ - full observability and insights into your cluster: Instantly start using
+   monitoring dashboards for your cluster, hosted 13 months of history, use
+   a realtime map of your cluster to debug and analyse its state.
+
+There is lots more, so if you want to learn more about Weave Cloud, read [the
+full feature comparison](https://weave.works/oss/flux) and see it in action on
+[its homepage](https://www.weave.works/product/cloud/).
 
 ## Get started with Flux
 
